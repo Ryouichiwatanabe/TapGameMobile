@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,97 +6,94 @@ using TMPro;
 using System.Linq;
 
 /// <summary>
-/// スコアに応じたランクごとの演出設定をまとめる構造体
-/// </summary>
+/// 繧ｹ繧ｳ繧｢縺ｫ蠢懊§縺溘Λ繝ｳ繧ｯ縺斐→縺ｮ貍泌・險ｭ螳壹ｒ縺ｾ縺ｨ繧√ｋ讒矩菴・/// </summary>
 [System.Serializable]
 /// <summary>
 
 public class ScoreRank
 {
-    [Tooltip("このランクになるために必要な最低スコア")]
+    [Tooltip("縺薙・繝ｩ繝ｳ繧ｯ縺ｫ縺ｪ繧九◆繧√↓蠢・ｦ√↑譛菴弱せ繧ｳ繧｢")]
     public int minScore = 0;
     
-    [Tooltip("このランクの時のスコアテキストの色")]
-    public Color scoreColor = Color.white; // デフォルトを白（不透明）にして透明になるのを防ぐ
-    
-    [Tooltip("テキストの震え幅（0なら震えない）")]
+    [Tooltip("縺薙・繝ｩ繝ｳ繧ｯ縺ｮ譎ゅ・繧ｹ繧ｳ繧｢繝・く繧ｹ繝医・濶ｲ")]
+    public Color scoreColor = Color.white; // 繝・ヵ繧ｩ繝ｫ繝医ｒ逋ｽ・井ｸ埼乗・・峨↓縺励※騾乗・縺ｫ縺ｪ繧九・繧帝亟縺・    
+    [Tooltip("繝・く繧ｹ繝医・髴・∴蟷・ｼ・縺ｪ繧蛾怫縺医↑縺・ｼ・)]
     public float shakeAmount = 0f;
     
-    [Tooltip("テキストの震えスピード")]
+    [Tooltip("繝・く繧ｹ繝医・髴・∴繧ｹ繝斐・繝・)]
     public float shakeSpeed = 10f;
     
-    [Tooltip("このランクで出現させるパーティクルエフェクト（任意）")]
+    [Tooltip("縺薙・繝ｩ繝ｳ繧ｯ縺ｧ蜃ｺ迴ｾ縺輔○繧九ヱ繝ｼ繝・ぅ繧ｯ繝ｫ繧ｨ繝輔ぉ繧ｯ繝茨ｼ井ｻｻ諢擾ｼ・)]
     public GameObject effectPrefab;
 }
 
 /// <summary>
-/// リザルト画面（ResultScene）の制御を行うスクリプト。
-/// スコアに応じて色、アニメーション、エフェクトを豪華にする機能を追加しています。
-/// </summary>
+/// 繝ｪ繧ｶ繝ｫ繝育判髱｢・・esultScene・峨・蛻ｶ蠕｡繧定｡後≧繧ｹ繧ｯ繝ｪ繝励ヨ縲・/// 繧ｹ繧ｳ繧｢縺ｫ蠢懊§縺ｦ濶ｲ縲√い繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ縲√お繝輔ぉ繧ｯ繝医ｒ雎ｪ闖ｯ縺ｫ縺吶ｋ讖溯・繧定ｿｽ蜉縺励※縺・∪縺吶・/// </summary>
 public class ResultScene : MonoBehaviour
 {
-    // --- 定数 ---
+    // --- 螳壽焚 ---
     private const string LAST_SCORE_KEY = "LastScore";
     private const string NEXT_SCENE     = "Title";
     private const string TAP_TEXT       = "Tap to Title";
 
-    // --- UI設定 ---
+    // --- UI險ｭ螳・---
     [Header("UI")]
-    [Tooltip("スコアを表示する TextMeshPro (ある場合)")]
+    [Tooltip("繧ｹ繧ｳ繧｢繧定｡ｨ遉ｺ縺吶ｋ TextMeshPro (縺ゅｋ蝣ｴ蜷・")]
     [SerializeField] private TMP_Text resultScoreTextTMP;
-    [Tooltip("スコアを表示する 従来の Text (ある場合)")]
+    [Tooltip("繧ｹ繧ｳ繧｢繧定｡ｨ遉ｺ縺吶ｋ 蠕捺擂縺ｮ Text (縺ゅｋ蝣ｴ蜷・")]
     [SerializeField] private Text     resultScoreText;
     
-    [Tooltip("「Tap to Title」を表示する TextMeshPro (ある場合)")]
+    [Tooltip("縲卦ap to Title縲阪ｒ陦ｨ遉ｺ縺吶ｋ TextMeshPro (縺ゅｋ蝣ｴ蜷・")]
     [SerializeField] private TMP_Text tapToTitleTextTMP;
-    [Tooltip("「Tap to Title」を表示する 従来の Text (ある場合)")]
+    [Tooltip("縲卦ap to Title縲阪ｒ陦ｨ遉ｺ縺吶ｋ 蠕捺擂縺ｮ Text (縺ゅｋ蝣ｴ蜷・")]
     [SerializeField] private Text     tapToTitleText;
 
-    // --- 演出設定 ---
-    [Header("ランク別の演出設定（スコアが高い順に並べなくても自動ソートされます）")]
+    // --- 貍泌・險ｭ螳・---
+    [Header("繝ｩ繝ｳ繧ｯ蛻･縺ｮ貍泌・險ｭ螳夲ｼ医せ繧ｳ繧｢縺碁ｫ倥＞鬆・↓荳ｦ縺ｹ縺ｪ縺上※繧り・蜍輔た繝ｼ繝医＆繧後∪縺呻ｼ・)]
     [SerializeField] private List<ScoreRank> scoreRanks = new List<ScoreRank>();
 
-    // --- フェード設定 ---
-    [Header("フェード設定")]
+    // --- 繝輔ぉ繝ｼ繝芽ｨｭ螳・---
+    [Header("繝輔ぉ繝ｼ繝芽ｨｭ螳・)]
     [SerializeField] private Image  fadeImage;
     [SerializeField] private float  fadeDuration  = 1f;
     [SerializeField] private string nextSceneName = NEXT_SCENE;
 
-    // --- BGM設定 ---
-    [Header("BGM設定")]
-    [Tooltip("リザルト画面で流すBGM（未設定の場合は自動でResultBGMを読み込みます）")]
+    // --- BGM險ｭ螳・---
+    [Header("BGM險ｭ螳・)]
+    [Tooltip("繝ｪ繧ｶ繝ｫ繝育判髱｢縺ｧ豬√☆BGM・域悴險ｭ螳壹・蝣ｴ蜷医・閾ｪ蜍輔〒ResultBGM繧定ｪｭ縺ｿ霎ｼ縺ｿ縺ｾ縺呻ｼ・)]
     [SerializeField] private AudioClip bgmClip;
 
-    // 内部変数
+    // 蜀・Κ螟画焚
     private bool isTransitioning;
     private int currentScore;
     private ScoreRank currentRank;
     private Vector2 initialScorePosition;
     private RectTransform scoreRectTransform;
 
+    /// <summary>
+    /// 繧ｷ繝ｼ繝ｳ髢句ｧ区凾縺ｮ蛻晄悄蛹門・逅・りレ譎ｯ險ｭ螳壹。GM蜀咲函縲√せ繧ｳ繧｢縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｪ縺ｩ繧貞ｮ溯｡後・    /// </summary>
     private void Start()
     {
-        // --- 背景画像の設定 ---
+        // --- 閭梧勹逕ｻ蜒上・險ｭ螳・---
         BackgroundHelper.SetupBackground("bg_result");
 
-        // --- BGMの再生 ---
+        // --- BGM縺ｮ蜀咲函 ---
         if (bgmClip == null) bgmClip = Resources.Load<AudioClip>("Audio/ResultBGM");
         if (AudioManager.Instance != null && bgmClip != null)
         {
-            AudioManager.Instance.PlayBGM(bgmClip, 0.4f); // 音量は0.4f（少し控えめ）
-        }
+            AudioManager.Instance.PlayBGM(bgmClip, 0.4f); // 髻ｳ驥上・0.4f・亥ｰ代＠謗ｧ縺医ａ・・        }
 
-        // フェード用の画像を最初に透明にしておく
+        // 繝輔ぉ繝ｼ繝臥畑縺ｮ逕ｻ蜒上ｒ譛蛻昴↓騾乗・縺ｫ縺励※縺翫￥
         if (fadeImage != null)
         {
             fadeImage.gameObject.SetActive(true);
             fadeImage.color = new Color(0f, 0f, 0f, 0f);
         }
 
-        // --- スコアの読み込み ---
+        // --- 繧ｹ繧ｳ繧｢縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ ---
         currentScore = PlayerPrefs.GetInt(LAST_SCORE_KEY, 0);
         
-        // TMPか通常のTextのどちらかに参照をセットアップし、初期表示を"0"にしておく
+        // TMP縺矩壼ｸｸ縺ｮText縺ｮ縺ｩ縺｡繧峨°縺ｫ蜿ら・繧偵そ繝・ヨ繧｢繝・・縺励∝・譛溯｡ｨ遉ｺ繧・0"縺ｫ縺励※縺翫￥
         if (resultScoreTextTMP != null)
         {
             resultScoreTextTMP.text = "0";
@@ -113,8 +110,7 @@ public class ResultScene : MonoBehaviour
             initialScorePosition = scoreRectTransform.anchoredPosition;
         }
 
-        // タップを促すテキストを表示する（最初は透明にしておく）
-        if (tapToTitleTextTMP != null) 
+        // 繧ｿ繝・・繧剃ｿ・☆繝・く繧ｹ繝医ｒ陦ｨ遉ｺ縺吶ｋ・域怙蛻昴・騾乗・縺ｫ縺励※縺翫￥・・        if (tapToTitleTextTMP != null) 
         {
             tapToTitleTextTMP.text = TAP_TEXT;
             tapToTitleTextTMP.alpha = 0f;
@@ -127,24 +123,22 @@ public class ResultScene : MonoBehaviour
             tapToTitleText.color = c;
         }
 
-        // --- ランク別演出の適用 ---
+        // --- 繝ｩ繝ｳ繧ｯ蛻･貍泌・縺ｮ驕ｩ逕ｨ ---
         ApplyRankEffects();
 
-        // --- アニメーションの開始 ---
+        // --- 繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ縺ｮ髢句ｧ・---
         StartCoroutine(AnimateScoreUp());
     }
 
     /// <summary>
-    /// スコアに応じたランクを判定し、色・エフェクトを設定する
-    /// </summary>
+    /// 繧ｹ繧ｳ繧｢縺ｫ蠢懊§縺溘Λ繝ｳ繧ｯ繧貞愛螳壹＠縲∬牡繝ｻ繧ｨ繝輔ぉ繧ｯ繝医ｒ險ｭ螳壹☆繧・    /// </summary>
     private void ApplyRankEffects()
     {
         if (scoreRanks == null || scoreRanks.Count == 0) return;
 
-        // 要求スコアが高い順（降順）にソートして、条件を満たす一番高いランクを探す
-        var sortedRanks = scoreRanks.OrderByDescending(r => r.minScore).ToList();
+        // 隕∵ｱゅせ繧ｳ繧｢縺碁ｫ倥＞鬆・ｼ磯剄鬆・ｼ峨↓繧ｽ繝ｼ繝医＠縺ｦ縲∵擅莉ｶ繧呈ｺ縺溘☆荳逡ｪ鬮倥＞繝ｩ繝ｳ繧ｯ繧呈爾縺・        var sortedRanks = scoreRanks.OrderByDescending(r => r.minScore).ToList();
 
-        // デフォルトとして一番低いランクを入れておく
+        // 繝・ヵ繧ｩ繝ｫ繝医→縺励※荳逡ｪ菴弱＞繝ｩ繝ｳ繧ｯ繧貞・繧後※縺翫￥
         currentRank = sortedRanks[sortedRanks.Count - 1];
 
         foreach (var rank in sortedRanks)
@@ -152,8 +146,7 @@ public class ResultScene : MonoBehaviour
             if (currentScore >= rank.minScore)
             {
                 currentRank = rank;
-                break; // 一番高いランクが見つかったら終了
-            }
+                break; // 荳逡ｪ鬮倥＞繝ｩ繝ｳ繧ｯ縺瑚ｦ九▽縺九▲縺溘ｉ邨ゆｺ・            }
         }
 
         if (currentRank == null) return;
@@ -163,38 +156,39 @@ public class ResultScene : MonoBehaviour
         if (currentRank.minScore > 30) safeColor = Palette.ColorC;
         safeColor.a = 1f;
 
-        // 1. 色の変更
+        // 1. 濶ｲ縺ｮ螟画峩
         if (resultScoreTextTMP != null) resultScoreTextTMP.color = safeColor;
         if (resultScoreText != null)    resultScoreText.color    = safeColor;
 
-        // 2. エフェクトの生成
+        // 2. 繧ｨ繝輔ぉ繧ｯ繝医・逕滓・
         if (currentRank.effectPrefab != null)
         {
-            // エフェクトを画面中央（または特定の場所）に生成する
+            // 繧ｨ繝輔ぉ繧ｯ繝医ｒ逕ｻ髱｢荳ｭ螟ｮ・医∪縺溘・迚ｹ螳壹・蝣ｴ謇・峨↓逕滓・縺吶ｋ
             Instantiate(currentRank.effectPrefab, Vector3.zero, Quaternion.identity);
         }
     }
 
+    /// <summary>
+    /// 豈弱ヵ繝ｬ繝ｼ繝蜻ｼ縺ｰ繧後ｋ譖ｴ譁ｰ蜃ｦ逅・ゅユ繧ｭ繧ｹ繝医・謠ｺ繧後ｄ轤ｹ貊・∫判髱｢繧ｿ繝・・縺ｫ繧医ｋ繧ｷ繝ｼ繝ｳ驕ｷ遘ｻ繧貞宛蠕｡縲・    /// </summary>
     private void Update()
     {
-        // --- テキストのアニメーション（揺れ） ---
+        // --- 繝・く繧ｹ繝医・繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ・域昭繧鯉ｼ・---
         if (scoreRectTransform != null && currentRank != null && currentRank.shakeAmount > 0f)
         {
-            // 時間とSin波、ランダムを組み合わせて激しく震えさせる
-            float t = Time.time * currentRank.shakeSpeed;
+            // 譎る俣縺ｨSin豕｢縲√Λ繝ｳ繝繝繧堤ｵ・∩蜷医ｏ縺帙※豼縺励￥髴・∴縺輔○繧・            float t = Time.time * currentRank.shakeSpeed;
             float shakeX = Mathf.Sin(t) * currentRank.shakeAmount + Random.Range(-currentRank.shakeAmount, currentRank.shakeAmount) * 0.2f;
             float shakeY = Mathf.Cos(t * 1.3f) * currentRank.shakeAmount + Random.Range(-currentRank.shakeAmount, currentRank.shakeAmount) * 0.2f;
 
             scoreRectTransform.anchoredPosition = initialScorePosition + new Vector2(shakeX, shakeY);
         }
 
-        // --- Tap to Title の点滅アニメーション ---
-        float alpha = (Mathf.Sin(Time.time * 4f) + 1f) * 0.5f; // 0.0 ~ 1.0を波打つ
-        alpha = Mathf.Lerp(0.3f, 1.0f, alpha); // 0.3 ~ 1.0の間で点滅させる
+        // --- Tap to Title 縺ｮ轤ｹ貊・い繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ ---
+        float alpha = (Mathf.Sin(Time.time * 4f) + 1f) * 0.5f; // 0.0 ~ 1.0繧呈ｳ｢謇薙▽
+        alpha = Mathf.Lerp(0.3f, 1.0f, alpha); // 0.3 ~ 1.0縺ｮ髢薙〒轤ｹ貊・＆縺帙ｋ
         if (tapToTitleTextTMP != null && tapToTitleTextTMP.gameObject.activeSelf) 
         {
-            // コルーチンが終わってアルファが設定されてからフェードさせるようにするため
-            // 最初はStartで0fにしているが、アニメーション開始後はこのUpdateで上書きされる
+            // 繧ｳ繝ｫ繝ｼ繝√Φ縺檎ｵゅｏ縺｣縺ｦ繧｢繝ｫ繝輔ぃ縺瑚ｨｭ螳壹＆繧後※縺九ｉ繝輔ぉ繝ｼ繝峨＆縺帙ｋ繧医≧縺ｫ縺吶ｋ縺溘ａ
+            // 譛蛻昴・Start縺ｧ0f縺ｫ縺励※縺・ｋ縺後√い繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ髢句ｧ句ｾ後・縺薙・Update縺ｧ荳頑嶌縺阪＆繧後ｋ
             if (tapToTitleTextTMP.alpha > 0.1f || alpha > 0.1f)
                 tapToTitleTextTMP.alpha = alpha;
         }
@@ -208,7 +202,7 @@ public class ResultScene : MonoBehaviour
             }
         }
 
-        // --- シーン遷移処理 ---
+        // --- 繧ｷ繝ｼ繝ｳ驕ｷ遘ｻ蜃ｦ逅・---
         if (!isTransitioning && Input.GetMouseButtonDown(0))
         {
             StartCoroutine(FadeAndLoadScene());
@@ -216,36 +210,32 @@ public class ResultScene : MonoBehaviour
     }
 
     /// <summary>
-    /// スコアを0から実際の値までカウントアップするアニメーション
+    /// 繧ｹ繧ｳ繧｢繧・縺九ｉ螳滄圀縺ｮ蛟､縺ｾ縺ｧ繧ｫ繧ｦ繝ｳ繝医い繝・・縺吶ｋ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ
     /// </summary>
     private IEnumerator AnimateScoreUp()
     {
-        // Tap To Title を最初は隠しておく（Startで設定済みだが念のため）
-        
-        float duration = 0.8f; // 0.8秒かけてカウントアップ
+        // Tap To Title 繧呈怙蛻昴・髫縺励※縺翫￥・・tart縺ｧ險ｭ螳壽ｸ医∩縺縺悟ｿｵ縺ｮ縺溘ａ・・        
+        float duration = 0.8f; // 0.8遘偵°縺代※繧ｫ繧ｦ繝ｳ繝医い繝・・
         float elapsed = 0f;
         
-        // 少し待ってからカウント開始
-        yield return new WaitForSeconds(0.2f);
+        // 蟆代＠蠕・▲縺ｦ縺九ｉ繧ｫ繧ｦ繝ｳ繝磯幕蟋・        yield return new WaitForSeconds(0.2f);
         
         if (AudioManager.Instance != null)
         {
-            // ドラムロール的な音があればここで鳴らすのもあり
-        }
+            // 繝峨Λ繝繝ｭ繝ｼ繝ｫ逧・↑髻ｳ縺後≠繧後・縺薙％縺ｧ魑ｴ繧峨☆縺ｮ繧ゅ≠繧・        }
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
             
-            // イーズアウト（後半ゆっくりになる）
-            float easeOut = 1f - Mathf.Pow(1f - t, 3f);
+            // 繧､繝ｼ繧ｺ繧｢繧ｦ繝茨ｼ亥ｾ悟濠繧・▲縺上ｊ縺ｫ縺ｪ繧具ｼ・            float easeOut = 1f - Mathf.Pow(1f - t, 3f);
             int displayScore = Mathf.RoundToInt(currentScore * easeOut);
             
             if (resultScoreTextTMP != null) resultScoreTextTMP.text = displayScore.ToString();
             if (resultScoreText != null)    resultScoreText.text    = displayScore.ToString();
             
-            // スコアがカウントアップしている間、少しスケールを揺らす
+            // 繧ｹ繧ｳ繧｢縺後き繧ｦ繝ｳ繝医い繝・・縺励※縺・ｋ髢薙∝ｰ代＠繧ｹ繧ｱ繝ｼ繝ｫ繧呈昭繧峨☆
             if (scoreRectTransform != null)
             {
                 scoreRectTransform.localScale = Vector3.one * (1f + Random.Range(-0.05f, 0.05f));
@@ -254,11 +244,11 @@ public class ResultScene : MonoBehaviour
             yield return null;
         }
         
-        // 最終スコアを確実にセット
+        // 譛邨ゅせ繧ｳ繧｢繧堤｢ｺ螳溘↓繧ｻ繝・ヨ
         if (resultScoreTextTMP != null) resultScoreTextTMP.text = currentScore.ToString();
         if (resultScoreText != null)    resultScoreText.text    = currentScore.ToString();
         
-        // 最後にスケールをポンッと大きくして戻す演出
+        // 譛蠕後↓繧ｹ繧ｱ繝ｼ繝ｫ繧偵・繝ｳ繝・→螟ｧ縺阪￥縺励※謌ｻ縺呎ｼ泌・
         if (scoreRectTransform != null)
         {
             float popDuration = 0.2f;
@@ -277,8 +267,7 @@ public class ResultScene : MonoBehaviour
             scoreRectTransform.localScale = Vector3.one;
         }
 
-        // Tap To Title の表示を許可（Updateの点滅に引き継がれる）
-        if (tapToTitleTextTMP != null) tapToTitleTextTMP.alpha = 1f;
+        // Tap To Title 縺ｮ陦ｨ遉ｺ繧定ｨｱ蜿ｯ・・pdate縺ｮ轤ｹ貊・↓蠑輔″邯吶′繧後ｋ・・        if (tapToTitleTextTMP != null) tapToTitleTextTMP.alpha = 1f;
         if (tapToTitleText != null)
         {
             var c = tapToTitleText.color;
@@ -287,6 +276,8 @@ public class ResultScene : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 繝輔ぉ繝ｼ繝峨い繧ｦ繝医＠縺ｦ縺九ｉ谺｡縺ｮ繧ｷ繝ｼ繝ｳ・医ち繧､繝医Ν・峨ｒ隱ｭ縺ｿ霎ｼ繧繧ｳ繝ｫ繝ｼ繝√Φ縲・    /// </summary>
     private IEnumerator FadeAndLoadScene()
     {
         isTransitioning = true;

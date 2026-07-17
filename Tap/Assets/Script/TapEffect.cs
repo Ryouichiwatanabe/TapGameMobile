@@ -1,31 +1,26 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// タップした位置でパーティクルをはじかせるエフェクトスクリプト。
-/// Particle System コンポーネントと一緒に使います。
-/// </summary>
-// このスクリプトをアタッチすると、自動的に ParticleSystem も追加される便利な属性
+/// 繧ｿ繝・・縺励◆菴咲ｽｮ縺ｧ繝代・繝・ぅ繧ｯ繝ｫ繧偵・縺倥°縺帙ｋ繧ｨ繝輔ぉ繧ｯ繝医せ繧ｯ繝ｪ繝励ヨ縲・/// Particle System 繧ｳ繝ｳ繝昴・繝阪Φ繝医→荳邱偵↓菴ｿ縺・∪縺吶・/// </summary>
+// 縺薙・繧ｹ繧ｯ繝ｪ繝励ヨ繧偵い繧ｿ繝・メ縺吶ｋ縺ｨ縲∬・蜍慕噪縺ｫ ParticleSystem 繧りｿｽ蜉縺輔ｌ繧倶ｾｿ蛻ｩ縺ｪ螻樊ｧ
 [RequireComponent(typeof(ParticleSystem))]
 public class TapEffect : MonoBehaviour
 {
-    // パーティクルシステムを操作するための変数
+    // 繝代・繝・ぅ繧ｯ繝ｫ繧ｷ繧ｹ繝・Β繧呈桃菴懊☆繧九◆繧√・螟画焚
     private ParticleSystem ps;
 
     private void Awake()
     {
-        // 自分の GameObject についている ParticleSystem コンポーネントを取得しておく
+        // 閾ｪ蛻・・ GameObject 縺ｫ縺､縺・※縺・ｋ ParticleSystem 繧ｳ繝ｳ繝昴・繝阪Φ繝医ｒ蜿門ｾ励＠縺ｦ縺翫￥
         ps = GetComponent<ParticleSystem>();
     }
 
     private void Start()
     {
-        // 生成された瞬間にパーティクルを再生開始
-        ps.Play();
+        // 逕滓・縺輔ｌ縺溽椪髢薙↓繝代・繝・ぅ繧ｯ繝ｫ繧貞・逕滄幕蟋・        ps.Play();
 
-        // パーティクルの再生にかかる全体の時間（基本の長さ + バラツキの最大値）を計算
-        float duration = ps.main.duration + ps.main.startLifetime.constantMax;
+        // 繝代・繝・ぅ繧ｯ繝ｫ縺ｮ蜀咲函縺ｫ縺九°繧句・菴薙・譎る俣・亥渕譛ｬ縺ｮ髟ｷ縺・+ 繝舌Λ繝・く縺ｮ譛螟ｧ蛟､・峨ｒ險育ｮ・        float duration = ps.main.duration + ps.main.startLifetime.constantMax;
         
-        // 再生が確実に終わるタイミングで、自分自身（エフェクト）を削除してメモリを節約する
-        Destroy(gameObject, duration);
+        // 蜀咲函縺檎｢ｺ螳溘↓邨ゅｏ繧九ち繧､繝溘Φ繧ｰ縺ｧ縲∬・蛻・・霄ｫ・医お繝輔ぉ繧ｯ繝茨ｼ峨ｒ蜑企勁縺励※繝｡繝｢繝ｪ繧堤ｯ邏・☆繧・        Destroy(gameObject, duration);
     }
 }
